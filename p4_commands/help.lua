@@ -16,8 +16,18 @@ cuhFramework.commands.create("help", {"h"}, false, nil, function(message, peer_i
             goto continue
         end
 
+        -- new shorthands stuff
+        local shorthands = {}
+        for _, shorthand in pairs(v.shorthands) do
+            table.insert(shorthands, "?"..shorthand)
+        end
+
         -- add to commands list but nice and formatted
-        table.insert(commands, "?"..v.command_name.."\n\\___"..v.shorthands.."\n\\___"..v.description)
+        if v.prefix then
+            table.insert(commands, "?"..v.prefix.." "..v.command_name.."\n     \\___"..table.concat(shorthands, ", ").."\n     \\___"..v.description)
+        else
+            table.insert(commands, "?"..v.command_name.."\n     \\___"..table.concat(shorthands, ", ").."\n     \\___"..v.description)
+        end
 
         ::continue::
     end
@@ -28,4 +38,4 @@ cuhFramework.commands.create("help", {"h"}, false, nil, function(message, peer_i
     end
 
     chatAnnounce("// Help\n"..config.info.help_message.."\n\n// Commands:\n"..table.concat(commands, "\n"), player)
-end)
+end, "Shows all commands along with help.")

@@ -1436,12 +1436,12 @@ cuhFramework.utilities.miscellaneous = {}
 ---Switch between two values depending on the state of something
 ---@param off any The return value if switch is false
 ---@param on any The return value if switch is true
----@param switch boolean Switch between the off and on value
+---@param switch boolean|any Switch between the off and on value
 ---@return any
 cuhFramework.utilities.miscellaneous.switchbox = function(off, on, switch)
-	if switch == true then -- not using "if switch then" because i want switch to 100% be a bool
+	if switch then
 		return on
-	elseif switch == false then
+	elseif switch then
 		return off
 	end
 end
@@ -4049,8 +4049,8 @@ end)
 ------------- Command
 ---------------------------------------
 
-------------- ?new
-cuhFramework.commands.create("create", {"cr"}, false, nil, function(message, peer_id, admin, auth, command, ...)
+------------- ?anim new
+cuhFramework.commands.create("create", {"cr"}, false, "anim", function(message, peer_id, admin, auth, command, ...)
     -- Get player
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
@@ -4062,10 +4062,10 @@ cuhFramework.commands.create("create", {"cr"}, false, nil, function(message, pee
     -- Create
     mainFunctions.createAnimation(player)
     announceFunctions.status.success("You have successfully created an animation. If you would like to create an animation point (plot) for the animation, type '?plot add'.", player)
-end)
+end, "Create an animation.")
 
-------------- ?delete
-cuhFramework.commands.create("delete", {"d"}, false, nil, function(message, peer_id, admin, auth, command, ...)
+------------- ?anim play
+cuhFramework.commands.create("play", {"p"}, false, "anim", function(message, peer_id, admin, auth, command, ...)
     -- Get player
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
@@ -4074,9 +4074,50 @@ cuhFramework.commands.create("delete", {"d"}, false, nil, function(message, peer
         return announceFunctions.status.failure("You don't have an animation. If you would to make one, type '?create'.", player)
     end
 
-    -- Remove animation
+    -- Play
     local animation = mainFunctions.getAnimationByPlayer(player)
-    animation
+    animation:play()
+end, "Play your animation.")
+
+------------- ?anim stop
+cuhFramework.commands.create("stop", {"s"}, false, "anim", function(message, peer_id, admin, auth, command, ...)
+    -- Get player
+    local player = cuhFramework.players.getPlayerByPeerId(peer_id)
+
+    -- Check
+    if not mainFunctions.hasAnimation(player) then
+        return announceFunctions.status.failure("You don't have an animation. If you would to make one, type '?create'.", player)
+    end
+
+    -- Stop
+    local animation = mainFunctions.getAnimationByPlayer(player)
+    animation:stop()
+end, "Stop your ongoing animation.")
+
+------------- ?anim delete
+cuhFramework.commands.create("delete", {"d"}, false, "anim", function(message, peer_id, admin, auth, command, ...)
+    -- Get player
+    local player = cuhFramework.players.getPlayerByPeerId(peer_id)
+
+    -- Check
+    if not mainFunctions.hasAnimation(player) then
+        return announceFunctions.status.failure("You don't have an animation. If you would to make one, type '?create'.", player)
+    end
+
+    -- Remove
+    local animation = mainFunctions.getAnimationByPlayer(player)
+    animation:remove()
+
+    announceFunctions.status.success("You have successfully removed your animation. If you would like to create an animation, type '?create'.", player)
+end, "Delete your animation.")
+
+------------- ?anim
+cuhFramework.commands.create("anim", nil, false, nil, function(message, peer_id, admin, auth, command, ...)
+    -- Get player
+    local player = cuhFramework.players.getPlayerByPeerId(peer_id)
+
+    -- Typed command incorrectly
+    announceFunctions.status.failure("This command requires a subcommand. Type '?help' to see them.", player)
 end)
 
 -----------------
@@ -4100,8 +4141,18 @@ cuhFramework.commands.create("help", {"h"}, false, nil, function(message, peer_i
             goto continue
         end
 
+        -- new shorthands stuff
+        local shorthands = {}
+        for _, shorthand in pairs(v.shorthands) do
+            table.insert(shorthands, "?"..shorthand)
+        end
+
         -- add to commands list but nice and formatted
-        table.insert(commands, "?"..v.command_name.."\n\\___"..v.shorthands.."\n\\___"..v.description)
+        if v.prefix then
+            table.insert(commands, "?"..v.prefix.." "..v.command_name.."\n     \\___"..table.concat(shorthands, ", ").."\n     \\___"..v.description)
+        else
+            table.insert(commands, "?"..v.command_name.."\n     \\___"..table.concat(shorthands, ", ").."\n     \\___"..v.description)
+        end
 
         ::continue::
     end
@@ -4112,7 +4163,7 @@ cuhFramework.commands.create("help", {"h"}, false, nil, function(message, peer_i
     end
 
     chatAnnounce("// Help\n"..config.info.help_message.."\n\n// Commands:\n"..table.concat(commands, "\n"), player)
-end)
+end, "Shows all commands along with help.")
 
 -----------------
 -- [Library | Folder: p4_commands] plot.lua
@@ -4121,31 +4172,112 @@ end)
 ------------- Command
 ---------------------------------------
 
-------------- ?new
-cuhFramework.commands.create("new", {"n"}, false, nil, function(message, peer_id, admin, auth, command, ...)
+------------- ?plot add
+cuhFramework.commands.create("add", {"a"}, false, "plot", function(message, peer_id, admin, auth, command, ...)
+    -- Get player and args
+    local player = cuhFramework.players.getPlayerByPeerId(peer_id)
+    local args = {...}
+
+    -- Check
+    if not mainFunctions.hasAnimation(player) then
+        return announceFunctions.status.failure("You don't have an animation. If you would like to create one, type '?create'.", player)
+    end
+
+    -- Create plot point
+    local animation = mainFunctions.getAnimationByPlayer(player)
+
+    local playerPos = player:get_position()
+    local speed = tonumber(args[1])
+
+    animation:createPlot(playerPos, speed or 1)
+
+    announceFunctions.status.success("You have successfully created a plot point for your animation. Want to see your plot points? Type '?plot show'."..cuhFramework.utilities.miscellaneous.switchbox("\nTip: You can specify a speed for your plot point by typing '?plot add (speed)'.", "", speed), player)
+end, "Create a new plot in your animation.")
+
+------------- ?plot show
+local showing_plots = {}
+
+cuhFramework.utilities.loop.create(0.01, function()
+    for i, _ in pairs(showing_plots) do
+        -- get variables
+        local data = showing_plots[i]
+
+        local player = cuhFramework.players.getPlayerByPeerId(i)
+        local animation = mainFunctions.getAnimationByPlayer(player)
+
+        -- quick check
+        if not animation then
+            for _, plotObject in pairs(data.plotObjects) do
+                plotObject:explode(0)
+            end
+
+            showing_plots[i] = nil
+            return
+        end
+
+        -- pooof
+        for plot_index, plot in pairs(animation.properties.plots) do
+            if not data.plotObjects[plot_index] then
+                data.plotObjects[plot_index] = cuhFramework.objects.spawnObject(plot.pos, 71) -- glowstick
+            end
+
+            data.plotObjects[plot_index]:teleport(plot.pos)
+        end
+    end
+end)
+
+cuhFramework.commands.create("show", {"s"}, false, "plot", function(message, peer_id, admin, auth, command, ...)
     -- Get player
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
     -- Check
-    if mainFunctions.hasAnimation(player) then
-        return announceFunctions.status.failure("You have already created an animation. If you would like to delete it, type '?delete'.", player)
+    if not mainFunctions.hasAnimation(player) then
+        return announceFunctions.status.failure("You don't have an animation. If you would like to create one, type '?create'.", player)
     end
 
-    -- Create
-    mainFunctions.createAnimation(player)
-    announceFunctions.status.success("You have successfully created an animation. If you would like to create an animation point (plot) for the animation, type '?plot add'.", player)
-end)
+    -- Show/Hide plot points
+    local data = showing_plots[peer_id]
+    if data then
+        -- hide
+        ---@param v object
+        for i, v in pairs(data.plotObjects) do
+            v:explode(0)
+        end
 
-------------- ?delete
-cuhFramework.commands.create("new", {"n"}, false, nil, function(message, peer_id, admin, auth, command, ...)
+        showing_plots[peer_id] = nil
+    else
+        -- show
+        showing_plots[peer_id] = {
+            plotObjects = {}
+        }
+    end
+end, "Show your animation's plots.")
+
+------------- ?plot delete
+cuhFramework.commands.create("delete", {"d"}, false, "plot", function(message, peer_id, admin, auth, command, ...)
     -- Get player
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
     -- Check
-    if mainFunctions.hasAnimation(player) then
-        return announceFunctions.status.failure("You have already created an animation. If you would like to delete it, type '?delete'.", player)
+    if not mainFunctions.hasAnimation(player) then
+        return announceFunctions.status.failure("You don't have an animation. If you would like to create one, type '?create'.", player)
     end
-end)
+
+    -- Remove most recent plot point
+    local animation = mainFunctions.getAnimationByPlayer(player)
+    animation:removeRecentPlot()
+
+    announceFunctions.status.success("You have successfully removed the most recent plot point from your animation. Want to see your plot points? Type '?plot show'.", player)
+end, "Delete your animation's most recent plot.")
+
+------------- ?plot
+cuhFramework.commands.create("plot", {"p"}, false, nil, function(message, peer_id, admin, auth, command, ...)
+    -- Get player
+    local player = cuhFramework.players.getPlayerByPeerId(peer_id)
+
+    -- Typed command incorrectly
+    announceFunctions.status.failure("This command requires a subcommand. Type '?help' to see them.", player)
+end, "s")
 
 -----------------
 -- [Main File] main.lua
