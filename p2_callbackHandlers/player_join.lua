@@ -1,8 +1,7 @@
 ---------------------------------------
-------------- UI [Local]
+------------- Player Join
 ---------------------------------------
 
-------------- Main
 cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, admin, auth)
     -- Get variables
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
@@ -16,7 +15,9 @@ cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, ad
         return
     end
 
-    ------------- Screen Popups
-    -- Animation Info UI
-    cuhFramework.ui.screen.create(peer_id + 10000, "", 0, 0.9, player):setVisibility(false)
+    -- Add
+    table.insert(players_unfiltered, player)
+
+    -- Announce
+    chatAnnounce("This server uses the "..config.info.addon_name..". For help using this addon, type '?help'.\n"..config.info.discord, player)
 end)

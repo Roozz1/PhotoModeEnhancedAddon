@@ -7,8 +7,7 @@
           "p4_commands"
      ],
      "files": [
-          "config.lua",
-          "settings.lua"
+          "config.lua"
      ],
      "main": "main.lua",
      "dump": "script.lua"

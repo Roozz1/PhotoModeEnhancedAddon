@@ -1,8 +1,12 @@
--- Variables
+---------------------------------------
+------------- Debounce
+---------------------------------------
+
+------------- Variables
 ---@type table<string, boolean>
 local debounces = {}
 
--- Functions
+------------- Functions
 debounceFunctions = {
     ---@param key any
     debounce = function(key, duration)

@@ -1,8 +1,12 @@
--- Variables
+---------------------------------------
+------------- Events
+---------------------------------------
+
+------------- Variables
 ---@type table<string, event>
 local events = {}
 
--- Functions
+------------- Functions
 eventFunctions = {
     ---@return event
     new = function(name)

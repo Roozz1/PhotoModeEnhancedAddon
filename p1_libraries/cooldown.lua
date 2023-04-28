@@ -1,7 +1,11 @@
--- Variables
+---------------------------------------
+------------- Cooldown
+---------------------------------------
+
+------------- Variables
 local cooldowns = {}
 
--- Functions
+------------- Functions
 cooldownFunctions = {
     ---@param key any
     new = function(key, duration)

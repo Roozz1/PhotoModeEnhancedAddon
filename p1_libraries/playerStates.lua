@@ -1,8 +1,12 @@
--- Variables
+---------------------------------------
+------------- Player States
+---------------------------------------
+
+------------- Variables
 ---@type table<string, table>
 local playerStates = {}
 
--- Functions
+------------- Functions
 playerStatesFunctions = {
     ---@param player player
 	setState = function(player, state)

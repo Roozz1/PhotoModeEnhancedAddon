@@ -1,80 +1,21 @@
 -----------------
 -- [Library] config.lua
 -----------------
+---------------------------------------
+------------- Configuration
+---------------------------------------
+
 config = {
-    isDedicatedServer = true,
+    isDedicatedServer = false, -- don't need to change for this addon
     debugEnabled = true,
     debugShouldLog = true,
 
     info = {
-        server_name = "Event",
-        discord = "discord.gg/zTQxaZjwDr"
+        addon_name = "Cinematography Addon",
+        discord = "discord.gg/zTQxaZjwDr",
+        help_message = "Create neat cinematics with ease by using this addon along with the game's built-in Photo Mode."
     },
-
-    cleanup = {
-        obj_cleanup_time = 45,
-        radiation_cleanup_time = 1,
-        dropped_item_cleanup_time = 30
-    },
-
-    starter_inventory = {
-        nil,
-        {id = 35, amount = 17},
-        nil, nil, nil, nil, nil, nil, nil,
-        {id = 76, amount = 1},
-    },
-
-    zombie = {
-        value = {
-            min = 50,
-            max = 200
-        },
-
-        maxConcurrentZombies = 45,
-        spawnTime = 7
-    },
-
-    game = {
-        timeUntilNext = 15,
-        timeUntilFullDeath = 20,
-
-        upgradeWeaponWave = 5,
-
-        sounds = {
-            gameStart = "gameStart",
-            gameEnd = "gameEnd",
-            newWave = "newWave"
-        }
-    }
 }
-
------------------
--- [Library] settings.lua
------------------
--- general settings
-local settings = {
-    ["despawn_on_leave"] = true,
-    ["clear_fow"] = true, -- show map
-    ["infinite_ammo"] = true,
-    ["respawning"] = true,
-    ["infinite_batteries"] = true
-}
-
-for i, v in pairs(settings) do
-    server.setGameSetting(i, v)
-end
-
--- currency
-server.setCurrency(10000000, 10000000)
-
--- weather
-local weather = {
-    1, -- fog
-    0, -- rain
-    0 -- wind
-}
-
-server.setWeather(table.unpack(weather))
 
 -----------------
 -- [Library | Folder: p0_cuhFramework] cuhFramework.lua
@@ -3659,24 +3600,28 @@ cuhFramework.references.httpGet = server.httpGet
 -----------------
 -- [Library | Folder: p1_libraries] announce.lua
 -----------------
--- Functions
+---------------------------------------
+------------- Announce
+---------------------------------------
+
+------------- Functions
 announceFunctions = {
 	status = {
         success = function(msg, player)
-            cuhFramework.ui.notifications.custom("["..config.info.server_name.."] Success", msg, player, 4)
+            cuhFramework.ui.notifications.custom("["..config.info.addon_name.."] Success", msg, player, 4)
         end,
 
         warning = function(msg, player)
-            cuhFramework.ui.notifications.custom("["..config.info.server_name.."] Warning", msg, player, 1)
+            cuhFramework.ui.notifications.custom("["..config.info.addon_name.."] Warning", msg, player, 1)
         end,
 
         failure = function(msg, player)
-            cuhFramework.ui.notifications.custom("["..config.info.server_name.."] Failure", msg, player, 2)
+            cuhFramework.ui.notifications.custom("["..config.info.addon_name.."] Failure", msg, player, 2)
         end,
     },
 
 	reminder = function(msg)
-        cuhFramework.ui.notifications.custom("["..config.info.server_name.."] Reminder", msg, nil, 8)
+        cuhFramework.ui.notifications.custom("["..config.info.addon_name.."] Reminder", msg, nil, 8)
 	end,
 
     popupAnnounce = function(text, timer)
@@ -3692,46 +3637,16 @@ announceFunctions = {
 }
 
 -----------------
--- [Library | Folder: p1_libraries] cleanup.lua
------------------
--- Variables
-cleanup_exceptions = {}
-cleanup_previous_obj = nil
-
--- Functions
-cleanupFunctions = {
-    clearObjects = function()
-        if not cleanup_previous_obj then
-            cleanup_previous_obj = cuhFramework.objects.spawnObject(matrix.translation(0, 0, 0), 100)
-        end
-
-        local new = cuhFramework.objects.spawnObject(matrix.translation(0, 0, 0), 100)
-
-        if not new then
-            return
-        end
-
-        for i = cleanup_previous_obj.properties.object_id, new.properties.object_id do
-            if not cleanup_exceptions[i] then
-                cuhFramework.objects.despawnObject(i)
-            end
-        end
-
-        cleanup_previous_obj = cuhFramework.objects.spawnObject(matrix.translation(0, 0, 0), 100)
-    end,
-
-    addException = function(id)
-        cleanup_exceptions[id] = true
-    end
-}
-
------------------
 -- [Library | Folder: p1_libraries] cooldown.lua
 -----------------
--- Variables
+---------------------------------------
+------------- Cooldown
+---------------------------------------
+
+------------- Variables
 local cooldowns = {}
 
--- Functions
+------------- Functions
 cooldownFunctions = {
     ---@param key any
     new = function(key, duration)
@@ -3758,11 +3673,15 @@ cooldownFunctions = {
 -----------------
 -- [Library | Folder: p1_libraries] debounce.lua
 -----------------
--- Variables
+---------------------------------------
+------------- Debounce
+---------------------------------------
+
+------------- Variables
 ---@type table<string, boolean>
 local debounces = {}
 
--- Functions
+------------- Functions
 debounceFunctions = {
     ---@param key any
     debounce = function(key, duration)
@@ -3787,13 +3706,14 @@ debounceFunctions = {
 -----------------
 -- [Library | Folder: p1_libraries] debug.lua
 -----------------
--- Variables
+---------------------------------------
+------------- Debug
+---------------------------------------
+
+------------- Variables
 debug_recently_called_function = nil
 
----@type table<integer, debug_queue_tbl|debug_queue_func>
-debug_inject_queue = {}
-
--- Functions
+------------- Functions
 debugFunctions = {
     initialize = function()
         -- alive loop
@@ -3843,11 +3763,15 @@ df = debugFunctions
 -----------------
 -- [Library | Folder: p1_libraries] events.lua
 -----------------
--- Variables
+---------------------------------------
+------------- Events
+---------------------------------------
+
+------------- Variables
 ---@type table<string, event>
 local events = {}
 
--- Functions
+------------- Functions
 eventFunctions = {
     ---@return event
     new = function(name)
@@ -3875,116 +3799,39 @@ eventFunctions = {
 }
 
 -----------------
--- [Library | Folder: p1_libraries] map.lua
+-- [Library | Folder: p1_libraries] matrix.lua
 -----------------
--- Variable
----@type map|nil
-local selected_map = nil
+---------------------------------------
+------------- Matrix
+---------------------------------------
 
----@type table<string, map>
-local maps = {}
+------------- Functions
+matrix.add = function(matrix1, matrix2)
+    local new = matrix.translation(0, 0, 0)
 
----@type table<any, map>
-local maps_raw = {}
-
--- Functions
-mapFunctions = {
-    new = function(name, position, size, needs_zone)
-        df.setRecentlyCalled("mapFunctions.new", name, position)
-
-        maps[name] = {
-            name = name,
-            position = position,
-            size = size,
-            needs_zone = needs_zone
-        }
-
-        table.insert(maps_raw, maps[name])
-
-        return {
-            map = maps[name],
-
-            remove = function(self)
-                return mapFunctions.remove(self.map.name)
-            end
-        }
-    end,
-
-    remove = function(name)
-        df.setRecentlyCalled("mapFunctions.remove", name)
-
-        local data = maps[name]
-        cuhFramework.utilities.table.removeValueFromTable(maps_raw, data)
-
-        maps[name] = nil
-    end,
-
-    ---@param map map
-    spawnMap = function(map)
-        df.setRecentlyCalled("mapFunctions.spawnMap", map)
-
-        if selected_map then
-            return
+    for i, v in pairs(new) do
+        if matrix1[i] and matrix2[i] then
+            new[i] = matrix1[i] + matrix2[i]
         end
-
-        if map.needs_zone then
-            map_zone = cuhFramework.customZones.createPlayerZone(map.position, map.size, function(player, entered)
-                if not gameFunctions.contestant.isContestant(player) then
-                    return
-                end
-
-                if not entered then
-                    player:teleport(map.position)
-                end
-            end)
-        end
-
-        selected_map = map
-        return map
-    end,
-
-    despawnMap = function()
-        df.setRecentlyCalled("mapFunctions.despawnMap")
-
-        if map_zone then
-            map_zone:remove()
-        end
-
-        if selected_map then
-            selected_map = nil
-        end
-    end,
-
-    getRandomMap = function()
-        df.setRecentlyCalled("mapFunctions.getRandomMap")
-        return maps_raw[math.random(1, #maps_raw)]
-    end,
-
-    getCurrentMap = function()
-        return selected_map
     end
-}
+
+    return new
+end
 
 -----------------
 -- [Library | Folder: p1_libraries] miscellaneous.lua
 -----------------
--- Functions
+---------------------------------------
+------------- Miscellaneous
+---------------------------------------
+
+------------- Functions
 miscellaneousFunctions = {
-    stringIfNil = function(var, str)
-        -- df.setRecentlyCalled("miscellaneous.stringIfNil", var, str) -- ERR: lag
-
-        if not var then
-            return str
-        end
-    end,
-
     stringBeforeAfter = function(before, string, after)
-        -- df.setRecentlyCalled("miscellaneous.stringBeforeAfter", before, string, after) -- ERR: lag
         return before..string..after
     end,
 
     aOrAn = function(str)
-        df.setRecentlyCalled("miscellaneous.aOrAn", str)
         local first_character = str:sub(1, 1):lower()
 
         if ("aeiou"):find(first_character:lower()) then
@@ -3996,38 +3843,19 @@ miscellaneousFunctions = {
 
     ---@param player player
     unnamedClientOrServerOrDisconnecting = function(player)
-        -- df.setRecentlyCalled("miscellaneous.unnamedClientOrServerOrDisconnecting", player) -- ERR: called a lot, may lag
         return (player.properties.peer_id == 0 and config.isDedicatedServer or player.properties.steam_id == 0) or player.properties.disconnecting
     end,
 
     ---@param pos SWMatrix
     matrixFormatted = function(pos)
-        df.setRecentlyCalled("miscellaneous.matrixFormatted", pos)
         return cuhFramework.utilities.number.round(pos[13], 1)..", "..cuhFramework.utilities.number.round(pos[14], 1)..", "..cuhFramework.utilities.number.round(pos[15], 1)
-    end,
-
-    addCommas = function(number)
-        -- df.setRecentlyCalled("miscellaneous.addCommas", number) -- ERR: lag
-
-        local formatted = tostring(number)
-        local k = 3
-
-        while true do
-            formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2', k)
-
-            if k == 0 then
-                break
-            end
-        end
-
-        return formatted
     end,
 
     getPlayerCount = function()
         local count = 0
 
         for _, v in pairs(cuhFramework.players.connectedPlayers) do
-            if not miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(v) and playerStatesFunctions.hasState(v, "ready") then
+            if not miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(v) then
                 count = count + 1
             end
         end
@@ -4044,26 +3872,18 @@ miscellaneousFunctions = {
     end
 }
 
-matrix.add = function(matrix1, matrix2)
-    local new = matrix.translation(0, 0, 0)
-
-    for i, v in pairs(new) do
-        if matrix1[i] and matrix2[i] then
-            new[i] = matrix1[i] + matrix2[i]
-        end
-    end
-
-    return new
-end
-
 -----------------
 -- [Library | Folder: p1_libraries] playerStates.lua
 -----------------
--- Variables
+---------------------------------------
+------------- Player States
+---------------------------------------
+
+------------- Variables
 ---@type table<string, table>
 local playerStates = {}
 
--- Functions
+------------- Functions
 playerStatesFunctions = {
     ---@param player player
 	setState = function(player, state)
@@ -4107,328 +3927,13 @@ playerStatesFunctions = {
 }
 
 -----------------
--- [Library | Folder: p1_libraries] statistics.lua
+-- [Library | Folder: p2_callbackHandlers] player_join.lua
 -----------------
--- Variables
-local statistics = {}
+---------------------------------------
+------------- Player Join
+---------------------------------------
 
--- Functions
-statisticsFunctions = {
-    track = function(name, starting_value)
-        statistics[name] = starting_value
-    end,
-
-    untrack = function(name)
-        statistics[name] = nil
-    end,
-
-    add = function(name, amount)
-        if not statistics[name] then
-            return statistics.track(name, amount)
-        end
-
-        statistics[name] = statistics[name] + amount
-    end,
-
-    subtract = function(name, amount)
-        if not statistics[name] then
-            return statistics.track(name, 0)
-        end
-
-        statistics[name] = statistics[name] - amount
-    end,
-
-    set = function(name, value)
-        if not statistics[name] then
-            return statistics.track(name, value)
-        end
-
-        statistics[name] = value
-    end,
-
-    get = function(name)
-        return statistics[name]
-    end
-}
-
------------------
--- [Library | Folder: p1_libraries] zombies.lua
------------------
--- Variables
-local zombie_count = 0
-local wave = 0
-local zombies = {}
-
--- Functions
-zombieFunctions = {
-    new = function(pos)
-        df.setRecentlyCalled("zombieFunctions.new")
-
-        local zombie_creature = cuhFramework.creatures.spawnCreature(pos, math.random(64, 96), 1)
-
-        if zombie_creature then
-            cleanupFunctions.addException(zombie_creature.properties.object_id)
-
-            zombie_count = zombie_count + 1
-            zombies[zombie_creature.properties.object_id] = {
-                value = 0, -- money to award on death
-                creature = zombie_creature
-            }
-
-            return {
-                zombie = zombies[zombie_creature.properties.object_id],
-
-                set_value = function(self, value)
-                    self.zombie.value = value
-                end,
-
-                despawn = function(self, explode)
-                    return zombieFunctions.despawnZombie(self.zombie, explode)
-                end
-            }
-        end
-    end,
-
-    getAllZombies = function()
-        return zombies
-    end,
-
-    ---@param zombie zombie
-    despawnZombie = function(zombie, explode)
-        df.setRecentlyCalled("despawnZombie", zombie, explode)
-
-        -- decrease count
-        zombie_count = zombie_count - 1
-
-        --remove data
-        zombies[zombie.creature.properties.object_id] = nil
-
-        -- despawn
-        if explode then
-            zombie.creature:explode(0.01)
-        else
-            zombie.creature:despawn()
-        end
-    end,
-
-    despawnAllZombies = function(should_explode)
-        df.setRecentlyCalled("despawn_all_zombies", should_explode)
-
-        for i, v in pairs(zombies) do
-            zombieFunctions.despawnZombie(v, should_explode)
-        end
-    end,
-
-    getZombieCount = function()
-        --df.setRecentlyCalled("get_zombie_count")
-        return zombie_count
-    end,
-
-    getWave = function()
-        return wave
-    end,
-
-    setWave = function(num)
-        wave = num
-    end,
-
-    increaseWave = function(num)
-        wave = wave + num
-    end,
-
-    maxZombies = function()
-        return math.floor(wave * 1.2 ^ 2)
-    end,
-
-    getZombieSpawnTimer = function()
-        return cuhFramework.utilities.number.clamp(config.zombie.spawnTime - ((zombieFunctions.getWave() / 4) ^ 1.1), 0.2, config.zombie.spawnTime)
-    end,
-
-    damageAmount = function()
-        return cuhFramework.utilities.number.clamp(wave * 2, 1, 10)
-    end
-}
-
------------------
--- [Library | Folder: p2_callbackHandlers] game.lua
------------------
-cuhFramework.utilities.delay.create(0.1, function() -- give time for connections to be made
-    ------------- Game Callbacks
-    -- Start
-    eventFunctions.get("game_starting"):connect(function()
-        -- Items
-        local pistol = inventoryFunctions.newItem(35, 17)
-        local flashlight = inventoryFunctions.newItem(15, 100)
-
-        for i, v in pairs(cuhFramework.players.connectedPlayers) do
-            if not miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(v) then
-                inventoryFunctions.clear(v)
-
-                inventoryFunctions.set(v, 2, pistol) -- game gives the items
-                inventoryFunctions.set(v, 3, flashlight)
-            end
-        end
-    end)
-
-    eventFunctions.get("game_start"):connect(function()
-        -- Sound
-        local sound_vehicle = gameFunctions.helpers.getSoundsVehicle()
-        sound_vehicle:press_button(config.game.sounds.gameStart)
-    end)
-
-    -- End
-    eventFunctions.get("game_end"):connect(function()
-        local sound_vehicle = gameFunctions.helpers.getSoundsVehicle()
-        sound_vehicle:press_button(config.game.sounds.gameEnd)
-    end)
-
-    ------------- Miscellaneous Callbacks
-    -- New wave
-    eventFunctions.get("new_wave"):connect(function(wave)
-        -- despawn zombies
-        zombieFunctions.despawnAllZombies(true)
-
-        -- ui stuff
-        local ui = cuhFramework.ui.screen.get(11004)
-
-        if ui then
-            ui:edit("Wave "..wave.."\nKills: "..statisticsFunctions.get("total_kills"), 0, 0)
-
-            cuhFramework.utilities.delay.create(5, function()
-                ui_anim = cuhFramework.animation.createLinearAnimation(matrix.translation(0, 0, 0), matrix.translation(0, 0.9, 0), 0.01, false, function(animation_data) ---@param animation_data animation_data
-                    ui:edit("Wave "..wave, 0, animation_data.current_pos[14])
-
-                    if animation_data.finished or not gameFunctions.helpers.isGameInProgress() then
-                        ui:edit("Wave "..wave, 0, 0.9)
-                        ui_anim:remove()
-                    end
-                end)
-            end)
-        end
-
-        -- reset kills
-        gameFunctions.misc.resetTotalKillsForThisWave()
-    end)
-
-    eventFunctions.get("new_wave"):connect(function(wave)
-        -- go through contestants
-        for i, v in pairs(gameFunctions.contestant.getAll()) do
-            v:damage(-100) -- heal
-            gameFunctions.helpers.giveItems(v)
-        end
-
-        -- Items
-        if wave == config.game.upgradeWeaponWave then
-            local rifle = inventoryFunctions.newItem(39, 30)
-
-            for i, v in pairs(gameFunctions.contestant.getAll()) do
-                if not miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(v) then
-                    inventoryFunctions.set(v, 1, rifle)
-                    inventoryFunctions.giveItems(v)
-                end
-            end
-
-            notificationAnnounce("Congratulations on making it to Wave "..wave..".\nYou have been given a rifle as a gift.")
-        end
-
-        -- sound
-        local sound_vehicle = gameFunctions.helpers.getSoundsVehicle()
-        sound_vehicle:press_button(config.game.sounds.newWave)
-    end)
-
-    ------------- Zombie Callbacks
-    ---@param zombie zombie
-    ---@param player player
-    eventFunctions.get("zombie_death"):connect(function(zombie, player)
-        df.print("zombie death")
-
-        -- despawn
-        zombieFunctions.despawnZombie(zombie, true)
-
-        -- announce
-        notificationAnnounce("You killed a zombie!", player)
-
-        -- add to kills
-        gameFunctions.misc.increaseTotalKillsForThisWave()
-        gameFunctions.misc.increaseTotalKills()
-    end)
-
-    ---@param zombie zombie
-    ---@param pos SWMatrix
-    ---@param player player
-    eventFunctions.get("zombie_move"):connect(function(zombie, pos, player)
-        -- move
-        zombie.creature:set_move_target(pos)
-        -- df.print("moving zombie to "..miscellaneousFunctions.matrixFormatted(pos))
-    end)
-
-    ---@param zombie zombie
-    ---@param player player
-    eventFunctions.get("zombie_attack"):connect(function(zombie, player)
-        df.print("zombie attack")
-
-        -- damage player
-        player:damage(zombieFunctions.damageAmount())
-
-        -- temporarily show damage ui
-        local ui = cuhFramework.ui.screen.get(player.properties.peer_id + 36000)
-        if ui and not debounceFunctions.debounce("attack_ui_"..player.properties.peer_id, 0.1) then
-            ui:setVisibility(true)
-
-            cuhFramework.utilities.delay.create(0.1, function()
-                ui = cuhFramework.ui.screen.get(player.properties.peer_id + 36000) -- quick check
-
-                if not ui then
-                    return
-                end
-
-                ui:setVisibility(false)
-            end)
-        end
-    end)
-
-    ------------- Player Callbacks
-    -- Death
-    cuhFramework.callbacks.onPlayerDie:connect(function(steam_id, name, peer_id, admin, auth)
-        -- Get variables
-        local player = cuhFramework.players.getPlayerByPeerId(peer_id)
-
-        -- Checks
-        if not player then
-            return
-        end
-
-        if miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(player) then
-            return
-        end
-
-        if debounceFunctions.debounce("die_"..peer_id, 1) then
-            return
-        end
-
-        -- Announce
-        if not gameFunctions.helpers.isGameInProgress() then
-            local character = player:get_character()
-            server.reviveCharacter(character)
-            return player:damage(-100)
-        else
-            gameFunctions.contestant.remove(player, true)
-            chatAnnounce(player.properties.name.." has been eliminated.")
-        end
-
-        -- Debug
-        df.print("player death - "..name)
-    end)
-end)
-
------------------
--- [Library | Folder: p2_callbackHandlers] player.lua
------------------
-------------- Join
 cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, admin, auth)
-    -- Debug
-    df.print("player join - "..name)
-
     -- Get variables
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
@@ -4440,26 +3945,22 @@ cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, ad
     if miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(player) then
         return
     end
-
-    -- Announce
-    chatAnnounce(player.properties.name.." has joined the event.")
-
-    if gameFunctions.helpers.isGameInProgress() then
-        chatAnnounce("You joined during a game. Unfortunately, you'll have to wait until it ends to participate in a game.", player)
-    end
-
-    -- Remove contestant status
-    gameFunctions.contestant.remove(player)
 
     -- Add
     table.insert(players_unfiltered, player)
+
+    -- Announce
+    chatAnnounce("This server uses the "..config.info.addon_name..". For help using this addon, type '?help'.\n"..config.info.discord, player)
 end)
 
-------------- Leave
-cuhFramework.callbacks.onPlayerLeave:connect(function(steam_id, name, peer_id, admin, auth)
-    -- Debug
-    df.print("player leave - "..name)
+-----------------
+-- [Library | Folder: p2_callbackHandlers] player_leave.lua
+-----------------
+---------------------------------------
+------------- Player Leave
+---------------------------------------
 
+cuhFramework.callbacks.onPlayerLeave:connect(function(steam_id, name, peer_id, admin, auth)
     -- Get variables
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
@@ -4472,71 +3973,21 @@ cuhFramework.callbacks.onPlayerLeave:connect(function(steam_id, name, peer_id, a
         return
     end
 
-    -- Announce
-    chatAnnounce(player.properties.name.." has left the event.")
-
     -- Remove
     cuhFramework.utilities.table.removeValueFromTable(players_unfiltered, player)
-
-    -- Remove contestant status
-    gameFunctions.contestant.remove(player)
 
     -- Clear states
     playerStatesFunctions.clearStates(player)
 end)
 
-------------- Character load
-cuhFramework.callbacks.onObjectLoad:connect(function(object_id)
-    -- Get variables
-    local player = cuhFramework.players.getPlayerByObjectId(object_id)
-
-    if not player then
-        return
-    end
-
-    if miscellaneousFunctions.unnamedClientOrServerOrDisconnecting(player) then
-        return
-    end
-
-    -- Debug
-    df.print("player char load - "..player.properties.name)
-end)
-
-------------- Item Drop
-cuhFramework.callbacks.onEquipmentDrop:connect(function(dropper_obj_id, equipment_obj_id, equipment_id)
-    cleanupFunctions.addException(equipment_obj_id)
-
-   cuhFramework.utilities.delay.create(config.cleanup.dropped_item_cleanup_time, function()
-        cuhFramework.objects.despawnObject(equipment_obj_id)
-   end)
-end)
-
------------------
--- [Library | Folder: p3_ui] global.lua
------------------
-cuhFramework.utilities.delay.create(0.01, function() -- reload scripts for loop cleans the map objects below, so this is here to prevent it
-    ------------- Screen Popups
-    -- Discord
-    discord_ui = cuhFramework.ui.screen.create(11000, "Discord:\n"..config.info.discord, -0.9, 0.2)
-
-    -- Help
-    help_ui = cuhFramework.ui.screen.create(11001, "Type '?help' for help.", -0.9, 0.37)
-
-    -- Game Info
-    game_info_ui = cuhFramework.ui.screen.create(11004, "Wave 1", 0, 0.9):setVisibility(false)
-
-    -- Player Count
-    player_count_ui = cuhFramework.ui.screen.create(11005, "", -0.9, 0)
-
-    cuhFramework.utilities.loop.create(1, function()
-        local player_count = miscellaneousFunctions.getPlayerCount()
-        player_count_ui:edit(player_count.." player"..miscellaneousFunctions.pluralOrSingular(player_count).."."..cuhFramework.utilities.miscellaneous.switchbox("", "\n"..gameFunctions.helpers.getMinimumPlayers() - player_count.." more needed.", player_count < gameFunctions.helpers.getMinimumPlayers()))
-    end)
-end)
-
 -----------------
 -- [Library | Folder: p3_ui] local.lua
 -----------------
+---------------------------------------
+------------- UI [Local]
+---------------------------------------
+
+------------- Main
 cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, admin, auth)
     -- Get variables
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
@@ -4551,53 +4002,39 @@ cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, ad
     end
 
     ------------- Screen Popups
-    -- Damage
-    cuhFramework.ui.screen.create(peer_id + 36000, "!!", 0, 0, player):setVisibility(false)
-
-    -- Type '?ready'
-    cuhFramework.ui.screen.create(peer_id + 37000, "Type '?ready' or '?r' to begin playing.", 0, 0, player)
-
-    ------------- Map Objects
-    -- Game Area
-    cuhFramework.utilities.delay.create(1, function() -- just in case ?reload_scripts is used and map spawn pos hasnt been set yet
-        eventFunctions.get("game_start"):connect(function()
-            local current_map = mapFunctions.getCurrentMap()
-            if current_map then
-                cuhFramework.references.addMapObject(peer_id, 11003, 0, 18, current_map.position[13], current_map.position[15],  nil, nil, nil, nil, "Game Area", current_map.size, "Map: "..current_map.name.."\nYou cannot exit this area.", 255, 255, 255, 255)
-            end
-        end)
-
-        eventFunctions.get("game_end"):connect(function()
-            cuhFramework.references.removeMapObject(peer_id, 11003)
-        end)
-    end)
+    -- Animation Info UI
+    cuhFramework.ui.screen.create(peer_id + 10000, "", 0, 0.9, player):setVisibility(false)
 end)
 
 -----------------
--- [Library | Folder: p4_commands] ready.lua
+-- [Library | Folder: p4_commands] help.lua
 -----------------
--- Get Position
-cuhFramework.commands.create("ready", {"r"}, false, nil, function(message, peer_id, admin, auth, command, ...)
-    -- get player
+---------------------------------------
+------------- Command
+---------------------------------------
+
+------------- ?help
+cuhFramework.commands.create("help", {"h"}, false, nil, function(message, peer_id, admin, auth, command, ...)
+    -- Get player
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
-    -- quick check
-    if playerStatesFunctions.hasState(player, "ready") then
-        return announceFunctions.status.failure("You are already ready.", player)
+    -- Pack commands into table
+    local commands = {}
+
+    for i, v in pairs(cuhFramework.commands.registeredCommands) do
+        -- probably an admin/internal command
+        if v.description == "" then
+            goto continue
+        end
+
+        -- add to commands list but nice and formatted
+        table.insert(commands, "?"..v.command_name.."\n\\___"..v.shorthands.."\n\\___"..v.description)
+
+        ::continue::
     end
 
-    -- set ready
-    playerStatesFunctions.setState(player, "ready")
-    announceFunctions.status.success("You are now recognised as ready.", player)
+    -- Show commands and help message
 
-    -- teleport
-    player:teleport(gameFunctions.helpers.getWaitingPos())
-
-    -- hide ui
-    local ui = cuhFramework.ui.screen.get(peer_id + 37000)
-    if ui then
-        ui:remove()
-    end
 end)
 
 -----------------
@@ -4630,47 +4067,15 @@ end)
 ----------------------------------------------------------------
 -- Intellisense
 ----------------------------------------------------------------
-------------- Inventory
----@class inventory
----@field item item
-
----@class item
----@field ammo number
----@field id integer
-
 ------------- Miscellaneous
----@class color
----@field r number
----@field g number
----@field b number
-
----@class min_max
----@field min number
----@field max number
-
 ---@class event
 ---@field connections table<any, function>
 ---@field connect function<connection, function>
 ---@field call function<connection, any>
 
-------------- Map
----@class map
----@field name string
----@field position SWMatrix
----@field size number
----@field needs_zone boolean
-
-------------- Zombie
----@class zombie
----@field value number
----@field creature creature
-
 ----------------------------------------------------------------
 -- Variables
 ----------------------------------------------------------------
----@type table<integer, boolean>
-recognisedDespawns = {}
-
 ---@type table<integer, player>
 players_unfiltered = {}
 
@@ -4679,35 +4084,11 @@ players_unfiltered = {}
 ----------------------------------------------------------------
 ------------- Uncategorised
 chatAnnounce = function(message, player)
-    cuhFramework.chat.send_message(miscellaneousFunctions.stringBeforeAfter("[", config.info.server_name, "]"), message, player)
+    cuhFramework.chat.send_message(miscellaneousFunctions.stringBeforeAfter("[", config.info.addon_name, "]"), message, player)
 end
 
 notificationAnnounce = function(message, player)
-    cuhFramework.ui.notifications.custom(miscellaneousFunctions.stringBeforeAfter("[", config.info.server_name, "]"), message, player, 7)
-end
-
----@param min_max_tbl min_max
-minMaxRandom = function(min_max_tbl, divide)
-    if not min_max_tbl.min or not min_max_tbl.max then
-        df.print("minMaxRandom - missing min or max, returned 0 to prevent error")
-        return 0
-    end
-
-    if min_max_tbl.min > min_max_tbl.max then
-        df.print("minMaxRandom - min is over max, returned 0 to prevent error | min: "..min_max_tbl.min.." | max: "..min_max_tbl.max.." | divide: "..tostring(divide))
-        return 0
-    end
-
-    if min_max_tbl.min == 0 or min_max_tbl.max == 0 then
-        df.print("minMaxRandom - min or max is 0, returned 0")
-        return 0
-    end
-
-    if divide then
-        return math.random(min_max_tbl.min, min_max_tbl.max) / 1000
-    else
-        return math.random(min_max_tbl.min, min_max_tbl.max)
-    end
+    cuhFramework.ui.notifications.custom(miscellaneousFunctions.stringBeforeAfter("[", config.info.addon_name, "]"), message, player, 7)
 end
 
 ---@return player
@@ -4716,25 +4097,9 @@ get_random_player = function()
 end
 
 ----------------------------------------------------------------
--- Loops
-----------------------------------------------------------------
-------------- Radiation Cleanup
-cuhFramework.utilities.loop.create(config.cleanup.radiation_cleanup_time, function()
-    -- Clear radiation
-    server.clearRadiation()
-end)
-
-------------- Object Cleanup
-cuhFramework.utilities.loop.create(config.cleanup.obj_cleanup_time, function()
-    cleanupFunctions.clearObjects()
-end)
-
-----------------------------------------------------------------
 -- Game
 ----------------------------------------------------------------
-------------- Maps
-mapFunctions.new("Origin", matrix.translation(-7.4, 9.4, -4774.4), 100, true)
-mapFunctions.new("Mines", matrix.translation(-8321.1, 141.2, -26251.3), 100, true)
+------------- 
 
 ----------------------------------------------------------------
 -- Setup
@@ -4743,26 +4108,7 @@ mapFunctions.new("Mines", matrix.translation(-8321.1, 141.2, -26251.3), 100, tru
 for i = 1, 60000 do
     -- Remove UI
     cuhFramework.ui.screen.remove(i)
-    cuhFramework.references.removeMapObject(-1, i)
 
     -- Remove physical stuff
-    cuhFramework.vehicles.despawnVehicle(i)
     cuhFramework.objects.despawnObject(i)
 end
-
-------------- Debug
-debugFunctions.initialize()
-
-------------- Game
-gameFunctions.helpers.setWaitingPos(matrix.translation(4020.7, 75.5, -6013.3))
-gameFunctions.helpers.setMapSpawnPos(matrix.translation(4047.7, 13.5, -6013.3))
-
-gameFunctions.helpers.setWaitingPosVehicleSpawnOffset(-3, -4, -3)
-gameFunctions.helpers.setPlayerSpawnPosOffset(0, 1, 0)
-gameFunctions.helpers.setZombieSpawnOffset(0, 0, 2)
-
-gameFunctions.helpers.setMinimumPlayers(2)
-gameFunctions.helpers.setGameStartDelay(7)
-gameFunctions.game.mainLoop()
-
-gameFunctions.initialize()

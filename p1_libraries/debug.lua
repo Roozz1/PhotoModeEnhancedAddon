@@ -1,10 +1,11 @@
--- Variables
+---------------------------------------
+------------- Debug
+---------------------------------------
+
+------------- Variables
 debug_recently_called_function = nil
 
----@type table<integer, debug_queue_tbl|debug_queue_func>
-debug_inject_queue = {}
-
--- Functions
+------------- Functions
 debugFunctions = {
     initialize = function()
         -- alive loop

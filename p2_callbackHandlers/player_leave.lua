@@ -1,9 +1,8 @@
 ---------------------------------------
-------------- UI [Local]
+------------- Player Leave
 ---------------------------------------
 
-------------- Main
-cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, admin, auth)
+cuhFramework.callbacks.onPlayerLeave:connect(function(steam_id, name, peer_id, admin, auth)
     -- Get variables
     local player = cuhFramework.players.getPlayerByPeerId(peer_id)
 
@@ -16,7 +15,9 @@ cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, ad
         return
     end
 
-    ------------- Screen Popups
-    -- Animation Info UI
-    cuhFramework.ui.screen.create(peer_id + 10000, "", 0, 0.9, player):setVisibility(false)
+    -- Remove
+    cuhFramework.utilities.table.removeValueFromTable(players_unfiltered, player)
+
+    -- Clear states
+    playerStatesFunctions.clearStates(player)
 end)
