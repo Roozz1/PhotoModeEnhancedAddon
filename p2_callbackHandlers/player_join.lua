@@ -19,5 +19,5 @@ cuhFramework.callbacks.onPlayerJoin:connect(function(steam_id, name, peer_id, ad
     table.insert(players_unfiltered, player)
 
     -- Announce
-    chatAnnounce("This server uses the "..config.info.addon_name..". For help using this addon, type '?help'.\n"..config.info.discord, player)
+    chatAnnounce("This server uses the "..config.info.addon_name.." addon. For help using this addon, type '?help'.\n    Discord: "..config.info.discord.."\n    Creator: "..config.info.creator, player)
 end)

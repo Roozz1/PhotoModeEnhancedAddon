@@ -23,5 +23,9 @@ cuhFramework.commands.create("help", {"h"}, false, nil, function(message, peer_i
     end
 
     -- Show commands and help message
+    if not commands[1] then
+        commands[1] = "This addon has no commands."
+    end
 
+    chatAnnounce("// Help\n"..config.info.help_message.."\n\n// Commands:\n"..table.concat(commands, "\n"), player)
 end)

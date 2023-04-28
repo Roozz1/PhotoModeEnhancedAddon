@@ -8,8 +8,9 @@ config = {
     debugShouldLog = true,
 
     info = {
-        addon_name = "Cinematography Addon",
+        addon_name = "Photo Mode Enhanced",
         discord = "discord.gg/zTQxaZjwDr",
-        help_message = "Create neat cinematics with ease by using this addon along with the game's built-in Photo Mode."
+        help_message = "Create neat cinematics with ease by using this addon along with the game's built-in Photo Mode.",
+        creator = "cuh4#7366"
     },
 }

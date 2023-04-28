@@ -7,11 +7,12 @@
 
 --------------
 --[[
-    cuhHub Cinematography Addon
+    cuhHub Photo Mode Enhanced Addon
     Created by cuh4#7366
 
     An addon that makes cinematics much easier by allowing you to plot a
-    path which your character will follow.
+    path which your character will follow. Great to use in combination with
+    the game's built-in photo mode.
 
     This addon uses the cuhFramework, see above.
 ]]
@@ -25,6 +26,33 @@
 ----------------------------------------------------------------
 -- Intellisense
 ----------------------------------------------------------------
+------------- Main
+---@class ca_animation
+---@field properties ca_animationProperties
+---@field events ca_animationEvents
+---
+---@field play function<ca_animation>
+---@field stop function<ca_animation>
+---@field remove function<ca_animation>
+---@field createPlot function<ca_animation, SWMatrix, number>
+---@field removeRecentPlot function<ca_animation>
+
+---@class ca_animationEvents
+---@field started event
+---@field stopped event
+---@field finished event
+
+---@class ca_animationProperties
+---@field plots table<integer, ca_plot>
+---@field currentPlotPoint integer
+---@field isInProgress boolean
+---@field player player
+---@field animation animation|nil
+
+---@class ca_plot
+---@field pos SWMatrix
+---@field speed number
+
 ------------- Miscellaneous
 ---@class event
 ---@field connections table<any, function>
